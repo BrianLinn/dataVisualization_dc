@@ -204,6 +204,9 @@ title(main = "Bar chart")
 
 
 ```
+
+##Different Plot Types
+
 ###Characterizing a Single Variable
 What do we expect to see?
         For numerical values we expect the distribution to follow the gaussian curve - normal distribution - the bell curve
@@ -502,3 +505,433 @@ text(tree_model, cex = 0.7)
 
 ```
 
+##Adding Details to Plots
+
+###The plot function and its options
+
+
+
+```{r settingParameters}
+rm(list = ls())
+mfrow <- function(rows, cols){
+        par(mfrow = c(rows, cols))
+}
+library(MASS)
+indexA <- which(whiteside$Insul == "After")
+indexB <- which(whiteside$Insul == "Before")
+x <- whiteside$Temp
+y <- whiteside$Gas
+plot(x[indexA], y[indexA], 
+     type = "o", 
+     pch = 16,
+     xlim = range(x),
+     ylim = range(y),
+     xlab = "Outside temperature",
+     ylab = "Heating gas consumption")
+lines(x[indexB], y[indexB],
+      type = "o",
+      pch = 1)
+legend("topright", pch = c(1, 16),
+       legend = c("Before insulation",
+                  "After insulation"))
+title("A local specification: type = 'o'")
+#type = "n" allows the creation of a plot without details which are added later
+```
+
+
+###Introduction to the par() function
+
+You already saw how the mfrow parameter to the par() function could be used to plot multiple graphs in one pane. The par() function also allows you to set many other graphics parameters, whose values will remain in effect until they are reset by a subsequent par() call.
+
+Specifically, a call to the par() function with no parameters specified will return a list whose element names each specify a graphics parameter and whose element values specify the corresponding default values of these parameters. These parameters may be set by a call in the form par(name = value) where name is the name of the parameter to be set and value is the value to be assigned to this parameter.
+
+The purpose of this exercise is to give an idea of what these graphics parameters are. In the subsequent exercises we'll show how some of these parameters can be used to enhance plot results.
+
+Capture the return from the par() function as the character vector plot_pars.
+Show the names of these graphics parameters by calling names() on plot_pars.
+Show the number of parameters in this list by calling length().
+
+```{r theParFunction}
+par()
+# Assign the return value from the par() function to plot_pars
+plot_pars <- par()
+
+# Display the names of the par() function's list elements
+names(plot_pars)
+
+# Display the number of par() function list elements
+length(plot_pars)
+
+```
+
+###Exploring the type option
+
+One of the important graphics parameters that can be set with the par() function is mfrow, which specifies the numbers of rows and columns in an array of plots. Valid values for this parameter are two-element numerical vectors, whose first element specifies the number of rows in the plot array and the second element specifies the number of rows.
+
+A more detailed discussion of using the mfrow parameter is given in Chapter 4 of this course. For now, note that to specify a plot array with three rows and one column, the command would be par(mfrow = c(3, 1)).
+
+The following exercise also introduces the type parameter for the plot() command, which specifies how the plot is drawn. The specific type values used here are:
+
+"p" for "points"
+"l" for "lines"
+"o" for "overlaid" (i.e., lines overlaid with points)
+"s" for "steps"
+
+Use the par() function to set the mfrow parameter for a two-by-two plot array.
+Generate a plot of brain weights from the Animals2 data frame, with observations plotted as points and the title "points" by calling the title() function.
+Repeat, with observations plotted as lines and the title "lines".
+Repeat, with observations plotted as overlaid points and lines and the title "overlaid".
+Repeat, with observations plotted as steps and the title "steps".
+
+```{r exploreTypeOption}
+library(MASS)
+library(tidyverse)
+#not in exercise - create Animals2
+
+Animals2 <- local({D <- rbind(Animals, mammals); unique(D[order(D$body,D$brain),])})
+
+# Set up a 2-by-2 plot array
+par(mfrow = c(2, 2))
+
+# Plot the Animals2 brain weight data as points
+plot(Animals2$brain,
+     type = "p")
+
+# Add the title
+title("points")
+
+# Plot the brain weights with lines
+plot(Animals2$brain,
+     type = "l")
+
+# Add the title
+title("lines")
+
+# Plot the brain weights as lines overlaid with points
+plot(Animals2$brain,
+     type = "o")
+
+# Add the title
+title("overlaid")
+
+# Plot the brain weights as steps
+plot(Animals2$brain,
+     type = "s")
+
+# Add the title
+title("steps")
+
+```
+
+
+
+###The surprising utility of the type "n" option
+
+The type = "n" option was discussed in the video and this exercise provides a simple example. This option is especially useful is when we are plotting data from multiple sources on a common set of axes. In such cases, we can compute ranges for the x- and y-axes so that all data points will appear on the plot, and then add the data with subsequent calls to points() or lines() as appropriate.
+
+This exercise asks you to generate a plot that compares mileage vs. horsepower data from two different sources: the mtcars data frame in the datasets package and the Cars93 data frame in the MASS package. To distinguish the different results from these data sources, the graphics parameter pch is used to specify point shapes. See ?points for a comprehensive list of some pch values and their corresponding point shapes.
+
+
+Compute max_hp as the maximum of Horsepower from the Cars93 data frame and hp from the mtcars data frame.
+Compute max_mpg as the maximum of MPG.city from the Cars93 data frame, MPG.highway from this data frame, and mpg from the mtcars data frame.
+Using the type = "n" option, set up a plot with an x-axis that runs from zero to max_hp and a y-axis that runs from zero to max_mpg, with labels Horsepower and Miles per gallon.
+Using the points() function, add mpg vs. hp from the mtcars data frame to the plot as open circles (pch = 1).
+Using the points() function, add MPG.city vs. Horsepower to the plot as solid squares (refer to the plot of pch values).
+Using the points() function, add MPG.highway vs. Horsepower to the plot as open triangles pointing upwards (refer to the plot of pch values).      
+
+```{r typeN}
+mfrow(1,1)
+# Compute max_hp
+max_hp <- max(Cars93$Horsepower, mtcars$hp)
+
+# Compute max_mpg
+max_mpg <- max(Cars93$MPG.city, Cars93$MPG.highway, mtcars$mpg)
+
+# Create plot with type = "n"               
+plot(max_hp, max_mpg,
+     type = "n", xlim = c(0, max_hp),
+     ylim = c(0, max_mpg), xlab = "Horsepower",
+     ylab = "Miles per gallon")
+
+# Add open circles to plot
+points(mtcars$hp, mtcars$mpg, pch = 1)
+
+# Add solid squares to plot
+points(Cars93$Horsepower, Cars93$MPG.city, pch = 15)
+
+# Add open triangles to plot
+points(Cars93$Horsepower, Cars93$MPG.highway, pch = 2)
+
+```
+
+###Adding lines to points and plots
+
+```{r highlightOutliers}
+library(MASS)
+plot(UScereal$fibre)
+index <- which(UScereal$fibre > 20)
+points(index, UScereal$fibre[index], pch = 16, col = "red")
+title("Using the points() function to highlight outliers")
+```
+
+```{r addLinestoTrueHist}
+#density line
+library(MASS)
+truehist(geyser$duration)
+lines(density(geyser$duration), lwd = 2, col = "blue")
+title("Old Faithful geyser duration data:
+      \n Histogram with Overlaid Density Plot")
+
+#abline
+plot(Cars93$Price, Cars93$Max.Price, pch = 17,
+     xlab = "Average price",
+     ylab = "Min & max prices")
+points(Cars93$Price, Cars93$Min.Price, pch = 6)
+abline(a= 0, b = 1, lty = 2, lwd = 2) #equality reference line
+title("Min & Max Price vs Average Price \n With an Equality Reference Line")
+```
+
+###The lines() function and line types
+
+As noted in Chapter 2, numerical data is often assumed to conform approximately to a Gaussian probability distribution, characterized by the bell curve. One point of this exercise is to show what this bell curve looks like for exactly Gaussian data and the other is to show how the lines() function can be used to add lines to an existing plot.
+
+The curves you are asked to draw here have the same basic shape but differ in their details (specifically, the means and standard deviations of these Gaussian distributions are different). For this reason, it is useful to draw these curves with different line types to help us distinguish them.
+
+Note that line types are set by the lty argument, with the default value lty = 1 specifying solid lines, lty = 2 specifying dashed lines, and lty = 3 specifying dotted lines. Also note that the lwd argument specifies the relative width.
+
+Create a numerical variable x with 200 evenly-spaced values from 0 to 10.
+Using the dnorm() function, generate a vector gauss1 of Gaussian probability densities for this range of x values, with mean 2 and standard deviation 0.2.
+Using the dnorm() function, generate a vector gauss2 of Gaussian probability densities for this range of x values, with mean 4 and standard deviation 0.5.
+Generate a plot of gauss1 vs. x with lines and a y-axis label "Gaussian probability density".
+Using the lines() function, add a second dashed line for gauss2 vs. x with relative width 3 (refer to the line type plot to select the lty parameter).
+
+```{r linesFunctionAndLineTypes}
+
+# Create the numerical vector x
+x <- seq(0, 10, length = 200)
+
+# Compute the Gaussian density for x with mean 2 and standard deviation 0.2
+gauss1 <- dnorm(x, mean = 2, sd = 0.2)
+
+# Compute the Gaussian density with mean 4 and standard deviation 0.5
+gauss2 <- dnorm(x, mean = 4, sd = 0.5)
+
+# Plot the first Gaussian density
+plot(x, gauss1,
+     type = "l",
+     ylab = "Gaussian probability density")
+
+# Add lines for the second Gaussian density
+lines(x, gauss2, lwd = 3, lty = 2)
+
+```
+
+###The points() function and point types
+
+One advantage of specifying the pch argument locally is that, in a call to functions like plot() or points(), local specification allows us to make pch depend on a variable in our dataset. This provides a simple way of indicating different data subsets with different point shapes or symbols.
+
+This exercise asks you to generate two plots of mpg vs. hp from the mtcars data frame in the datasets package. The first plot specifies the point shapes using numerical values of the pch argument defined by the cyl variable in the mtcars data frame. The second plot illustrates the fact that pch can also be specified as a vector of single characters, causing each point to be drawn as the corresponding character.
+
+Create an empty plot of mpg vs. hp using the type = "n" option from the mtcars data frame, with axis labels "Horsepower" and "Gas mileage".
+Using the points() function, add the mpg vs. hp data, with pch specified by the numeric values of cyl.
+Repeat both of the previous steps, except with pch specified by the character values of cyl.
+
+```{r pointsFunctionAndPointTypes}
+
+# Create an empty plot using type = "n"
+plot(mtcars$hp, mtcars$mpg, 
+     type = "n",
+     xlab = "Horsepower",
+     ylab = "Gas mileage")
+
+# Add points with shapes determined by cylinder number
+points(mtcars$hp, mtcars$mpg, pch = mtcars$cyl)
+
+# Create a second empty plot
+plot(mtcars$hp, mtcars$mpg, 
+     type = "n",
+     xlab = "Horsepower",
+     ylab = "Gas mileage")
+
+# Add points with shapes as cylinder characters
+points(mtcars$hp, mtcars$mpg, pch = as.character(mtcars$cyl))
+
+```
+
+
+###Adding trend lines from linear regression models
+
+The low-level plot function abline() adds a straight line to an existing plot. This line is specified by an intercept parameter a and a slope parameter b, and the simplest way to set these parameters is directly. For example, the command abline(a = 0, b = 1) adds an equality reference line with zero intercept and unit (i.e. 1) slope: points for which y = x fall on this reference line, while points with y > x fall above it, and points with y < x fall below it.
+
+An alternative way of specifying these parameters is through a linear regression model that determines them from data. One common application is to generate a scatterplot of y versus x, then fit a linear model that predicts y from x, and finally call abline() to add this best fit line to the plot.
+
+This exercise asks you to do this for the Gas versus Temp data from the whiteside data frame in the MASS package. The standard R function that fits linear regression models is lm(), which supports the formula interface. Thus, to fit a linear model that predicts y from x in the data frame df, the call would be lm(y ~ x, data = df). This call returns a linear model object, which can then be passed as an argument to the abline() function to draw the desired line on our plot.
+
+
+Use the lm() function to create linear_model, a linear regression model that predicts Gas from Temp from the whiteside data frame.
+Generate a scatterplot of Gas vs. Temp.
+Using the abline() function, add a dashed reference line that shows the predictions of linear_model.
+
+```{r trendLinesRegressionModels}
+
+# Build a linear regression model for the whiteside data
+linear_model <- lm(Gas ~ Temp, data = whiteside)
+
+# Create a Gas vs. Temp scatterplot from the whiteside data
+plot(whiteside$Temp, whiteside$Gas)
+
+# Use abline() to add the linear regression line
+abline(linear_model, lty = 2)
+#Note the line emphasizes the general trend
+
+```
+
+
+###Adding text to plots
+
+```{r textToPlots}
+library(MASS)
+mfrow(1, 2)
+plot(density(geyser$waiting))
+plot(density(geyser$waiting),
+     main = "Estimated density \n Old Faithful waiting times")
+```
+
+
+```{r textJustification}
+library(MASS)
+plot(UScereal$fibre)
+text(5, 28, "<--Outliers [left-justified text at (5, 28)]", adj = 0)
+text(65, 23, "[right-justified text at (65, 23)]", adj = 1, col = "red")
+text(31, 18, "[Centered text (default) at (31, 18)]", col = "blue")
+#<0 to end text before center, >0 to begin text to right of center
+```
+
+
+```{r fontsOrientationsOther}
+mfrow(1,1)
+library(MASS)
+plot(Boston$rad)
+text(350, 24, adj = 1, "Inner city? -->",
+     srt = 30,
+     font = 2,
+     cex = 1.2,
+     col = "red")
+text(100, 15, "Suburbs? -->", 
+     srt = -45, 
+     font = 3, 
+     col = "green")
+title("Text with varying orientation, fonts, sizes and colors")
+
+#srt alters angle of orientation
+#cex alters text size as percentage of 1
+#col alters text color
+#font alters text font, regular, bold, italic, bold/italic, (1,2,3,4)
+```
+
+
+###Using the text() function to label plot features
+
+One of the main uses of the text() function is to add informative labels to a data plot. The text() function takes three arguments:
+
+x, which specifies the value for the x variable,
+y, which specifies the value for the y variable, and
+label, which specifies the label for the x-y value pair.
+This exercise asks you to first create a scatterplot of city gas mileage versus horsepower from the Cars93 data, then identify an interesting subset of the data (i.e. the 3-cylinder cars) and label these points. You will find that assigning a vector to the x, y, and label arguments to text() will result in labeling multiple points at once.
+
+Create a scatterplot of MPG.city vs. Horsepower from the Cars93 data frame, with points represented as solid squares. Recall that the pch value for solid squares is 15.
+Create the variable index3 using the which() function that identifies all 3-cylinder cars.
+Label the Make of each 3-cylinder car in the Cars93 data frame using the text() function. Use the adj argument to specify left-justified text in your labels.
+Use the zoom feature in the Plots window to see this plot more clearly.
+
+
+```{r textToLabelPlotFeatures}
+# Create MPG.city vs. Horsepower plot with solid squares
+plot(Cars93$Horsepower, Cars93$MPG.city,
+     pch = 15)
+
+# Create index3, pointing to 3-cylinder cars
+index3 <- which(Cars93$Cylinders == 3)
+
+# Add text giving names of cars next to data points
+text(x = Cars93$Horsepower[index3], 
+     y = Cars93$MPG.city[index3],
+     labels = Cars93$Make[index3], adj = 0)
+```
+
+
+###Adjusting text position, size, and font
+
+The previous exercise added explanatory text to a scatterplot. The purpose of this exercise is to improve this plot by modifying the text placement, increasing the text size, and displaying the text in boldface.
+
+It was noted that the adj argument to the text() function determines the horizontal placement of the text and it can take any value between 0 and 1. In fact, this argument can take values outside this range. That is, making this value negative causes the text to start to the right of the specified x position. Similarly, making adj greater than 1 causes the text to end to the left of the x position.
+
+Another useful optional argument for the text() function is cex, which scales the default text size. As a specific example, setting cex = 1.5 increases the text size by 50 percent, relative to the default value. Similarly, specifying cex = 0.8 reduces the text size by 20 percent.
+
+Finally, the third optional parameter used here is font, which can be used to specify one of four text fonts: font = 1 is the default text font (neither italic nor bold), font = 2 specifies bold face text, font = 3 specifies italic text, and font = 4 specifies both bold and italic text.
+
+Create a plot of MPG.city vs. Horsepower from the Cars93 data frame, with data represented as open circles.
+Construct the variable index3 using the which() function that identifies the row numbers containing all 3-cylinder cars.
+Use the points() function to overlay solid circles on top of all points in the plot that represent 3-cylinder cars.
+Use the text() function with the Make variable as before to add labels to the right of the 3-cylinder cars, but now use adj = -0.2 to move the labels further to the right, use the cex argument to increase the label size by 20 percent, and use the font argument to make the labels bold italic.
+
+
+```{r textPositionSizeFont}
+# Plot MPG.city vs. Horsepower as open circles
+plot(Cars93$Horsepower, Cars93$MPG.city,
+     pch = 1)
+
+# Create index3, pointing to 3-cylinder cars
+index3 <- which(Cars93$Cylinders ==3)
+
+# Highlight 3-cylinder cars as solid circles
+points(Cars93$Horsepower[index3], Cars93$MPG.city[index3],
+       pch = 16)
+
+# Add car names, offset from points, with larger bold text
+text(Cars93$Horsepower[index3], Cars93$MPG.city[index3],
+     labels = Cars93$Make[index3],
+     adj = -0.2,
+     cex = 1.2,
+     font = 4)
+names(Cars93)
+```
+
+
+###Rotating text with the srt argument
+
+In addition to the optional arguments used in the previous exercises, the text() function also supports a number of other optional arguments that can be used to enhance the text. This exercise uses the cex argument to reduce the text size and introduces two new arguments. The first is the col argument that specifies the color used to display the text, and the second is the srt argument that allows us to rotate the text.
+
+Color has been used in several of the previous exercises to specify point colors, and the effective use of color is discussed further in Chapter 5. One of the points of this exercise is to show that the specification of text color with the text() function is essentially the same as the specification of point color with the plot() function. As a specific example, setting col = "green" in the text() function causes the text to appear in green. If col is not specified, the text appears in the default color set by the par() function, which is typically black.
+
+The srt parameter allows us to rotate the text through an angle specified in degrees. The typical default value (set by the par() function) is 0, causing the text to appear horizontally, reading from left to right. Specifying srt = 90 causes the text to be rotated 90 degrees counter-clockwise so that it reads from bottom to top instead of left to right.
+
+
+Create a scatterplot of Gas vs. Temp from the whiteside data frame, as solid triangles.
+Use the which() function to create a vector indexB that points to all data observations with Insul having the value "Before".
+Use the which() function to create a vector indexA that points to all data observations with Insul having the value "After".
+Use the text() function to overlay the text "Before" on the appropriate points, in blue, rotated 30 degrees, reducing the text size to 80 percent of the default.
+Use the text() function to overlay the text "After" on the appropriate points, in red, rotated -20 degrees, reducing the text size to 80 percent of the default.
+
+
+```{r srtArgument}
+# Plot Gas vs. Temp as solid triangles
+plot(whiteside$Temp, whiteside$Gas,
+     pch = 17)
+
+# Create indexB, pointing to "Before" data
+indexB <- which(whiteside$Insul == "Before")
+
+# Create indexA, pointing to "After" data
+indexA <- which(whiteside$Insul == "After")
+
+# Add "Before" text in blue, rotated 30 degrees, 80% size
+text(x = whiteside$Temp[indexB], y = whiteside$Gas[indexB],
+     labels = "Before", col = "blue", srt = 30, cex = 0.8)
+
+# Add "After" text in red, rotated -20 degrees, 80% size
+text(x = whiteside$Temp[indexA], y = whiteside$Gas[indexA],
+     labels = "After", col = "red", srt = -20, cex = 0.8)
+```
+
+###Adding or modifying  
