@@ -55,6 +55,7 @@ baseplot +
         annotate("text", label = title, x = 3, y = 400,
                  colour = "red")
 ```
+
 ###Creating an exploratory plot array
 
 In this exercise, you'll construct a simple exploratory plot from a data frame that gives values for three variables, recorded over two winter heating seasons. The variables are:
@@ -75,7 +76,7 @@ In constrast to the exploratory analysis plot you created in the previous exerci
 Here, it is important to make editorial choices in constructing this plot, rather than depending entirely on default options. In particular, the important editorial aspects of this plot are: first, the variables to be plotted, and second, the axis labels, which are specified as strings to the xlab and ylab arguments to the plot() function.
 
 ```{r explanatoryScatterplot}
-?plot
+
 plot(whiteside$Temp, whiteside$Gas,
      xlab = "Outside temperature",
      ylab = "Heating gas consumption")
@@ -327,6 +328,7 @@ mfrow <- function(rows, cols){
 }
 # Set up a side-by-side plot array
 mfrow(1, 2)
+#par(mfrow = c(1, 2))
 
 # Create the standard scatterplot
 plot(rad ~ zn, data = Boston)
@@ -340,7 +342,7 @@ sunflowerplot(rad ~ zn, data = Boston)
 # Add the title
 title(main = "Sunflower plot")
 
-viewer(1,1)
+#viewer(1,1)
 
 ```
 
@@ -466,7 +468,7 @@ library(corrplot)
 
 # Extract the numerical variables from UScereal - remove non-factor columns
 numericalVars <- UScereal[, sapply(UScereal, function(x) !is.factor(x))]
-OR
+#OR
 numvars2 <- UScereal[, sapply(UScereal, function(x) is.numeric(x))]
 
 # Compute the correlation matrix for these variables
@@ -1347,7 +1349,7 @@ rowA <- c(1, 1, 1)
 rowB <- c(2, 0, 3)
 layoutVectorClass <- c(rowA, rowA, rowB)
 layoutMatrixClass <- matrix(layoutVectorClass, byrow = TRUE, nrow = 3)
-layoutMatrix
+layoutMatrixClass
 
 #use previously constructed matrix
 layout(layoutMatrixClass)
@@ -1496,4 +1498,7 @@ plot(Boston$rad, Boston$zn)
 sunflowerplot(Boston$rad, Boston$zn)
 
 ```
+
+##Advanced Plot Customization and Beyond
+
 
