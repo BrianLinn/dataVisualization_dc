@@ -1501,4 +1501,151 @@ sunflowerplot(Boston$rad, Boston$zn)
 
 ##Advanced Plot Customization and Beyond
 
+###Creating and saving more complex plots
+Side-effects and return values
+        -all r-graphics functions called for side-effects
+        -they generate a plot
+        -unlike most functions - they return nothing useful
+                -exception is barplot which returns a vector of values as well as the plot
+
+```{r returnValues}
+remove(list = ls())
+library(MASS)
+tbl <- table(UScereal$shelf)
+#the side-effect of running barplot is the barplot
+mids <- barplot(tbl,
+                horiz = TRUE,
+                col = "transparent",
+                names.arg = "")
+#the return values of barplot are the vector of numbers
+mids
+
+text(10,
+     mids,
+     names(tbl),
+     col = "red",
+     font = 2,
+     cex = 2)
+title("Distribution of cereals by shelf")
+```
+
+####show() to visualize relations between 3 or more variables
+```{r show}
+library(MASS)
+symbols(UScereal$sugars,
+        UScereal$calories,
+        squares = UScereal$shelf,
+        inches = 0.1,
+        bg = rainbow(3)[UScereal$shelf])
+title("Cereal calories vs. sugars, coded by shelf")
+```
+
+####Saving plots as png files
+```{r savePlotAsPNG}
+#divert graphics output to png file
+png("SavedGraphicsFile.png")
+
+library(MASS)
+symbols(UScereal$sugars,
+        UScereal$calories,
+        squares = UScereal$shelf,
+        inches = 0.1,
+        bg = rainbow(3)[UScereal$shelf])
+title("Cereal calories vs. sugars, coded by shelf")
+dev.off()
+```
+
+###Some plot functions also return useful information
+As shown in the video, calling the barplot() function has the side effect of creating the plot we want, but it also returns a numerical vector with the center positions of each bar in the plot. This value is returned invisibly so we don't normally see it, but we can capture it with an assignment statement.
+
+These return values can be especially useful when we want to overlay text on the bars of a horizontal barplot. Then, we capture the return values and use them as the y parameter in a subsequent call to the text() function, allowing us to place the text at whatever x position we want but overlaid in the middle of each horizontal bar. This exercise asks you to construct a horizontal barplot that exploits these possibilities.
+
+Feel free to reference a similar example in the slides by clicking on the "Slides" tab next to the "R Console" tab.
+
+The Cars93 data frame from the MASS package is already available in your workspace.
+
+Use the table() function to generate the object tbl summarizing the number of records listing each value of the Cylinders variable from the Cars93 data frame.
+Use the barplot() function with the horiz argument set to TRUE to construct a horizontal barplot of this record summary, specifying the color of the bars to be "transparent" and returning the vector mids giving the vertical positions of the centers of each bar in the plot. Specify the names.arg argument as "" to suppress the y-axis legend on this plot.
+Use the text() function to label the Cylinders value for each bar in the barplot at the horizontal position 20. The names() function may prove useful here.
+Use the text() function to list the counts for each cylinders value at the horizontal position 35. Here, the as.numeric() function may prove useful.
+
+```{r usefulPlotReturnValues}
+library(MASS)
+# Create a table of Cylinders frequencies
+tbl <- table(Cars93$Cylinders)
+
+# Generate a horizontal barplot of these frequencies
+mids <- barplot(tbl, 
+                horiz = TRUE,
+                col = "transparent",
+                names.arg = "")
+
+
+# Add names labels with text()
+text(20, 
+     mids,
+     names(tbl))
+
+# Add count labels with text()
+text(35, 
+     mids, 
+     as.numeric(tbl))
+
+```
+
+
+###Using the symbols() function to display relations between more than two variables
+The scatterplot allows us to see how one numerical variable changes with the values of a second numerical variable. The symbols() function allows us to extend scatterplots to show the influence of other variables.
+
+This function is called with the variables x and y that define a scatterplot, along with another argument that specifies one of several possible shapes. Here, you are asked to use the circles argument to create a bubbleplot where each data point is represented by a circle whose radius depends on the third variable specified by the value of this argument.
+
+The Cars93 data frame from the MASS package is already available in your workspace.
+
+Use the symbols() function with its default settings and the appropriate arguments to create a bubble plot of MPG.city versus Horsepower from the Cars93 data frame, with the bubble area by the Price variable. Note that this means the bubble radius should be proportional to the square root of Price.
+Re-create the first plot, but with the optional argument inches set to 0.1.
+
+```{r symbolsPlot}
+
+# Call symbols() to create the default bubbleplot
+symbols(Cars93$Horsepower, 
+        Cars93$MPG.city,
+        circles = sqrt(Cars93$Price))
+
+# Repeat, with the inches argument specified
+symbols(Cars93$Horsepower, 
+        Cars93$MPG.city,
+        circles = sqrt(Cars93$Price),
+        inches = 0.1)
+
+```
+
+###Saving plot results as files
+In an interactive R session, we typically generate a collection of different plots, often using the results to help us decide how to proceed with our analysis. This is particularly true in the early phases of an exploratory data analysis, but once we have generated a plot we want to share with others, it is important to save it in an external file.
+
+R provides support for saving graphical results in several different external file formats, including jpeg, png, tiff, or pdf files. In addition, we can incorporate graphical results into external documents, using tools like the Sweave() function or the knitr package. One particularly convenient way of doing this is to create an R Markdown document, an approach that forms the basis for another DataCamp course.
+
+Because png files can be easily shared and viewed as e-mail attachments and incorporated into many slide preparation packages (e.g. Microsoft Powerpoint), this exercise asks you to create a plot and save it as a png file. The basis for this process is the png() function, which specifies the name of the png file to be generated and sets up a special environment that captures all graphical output until we exit this environment with the dev.off() command.
+
+Use the png() function to direct all subsequent plot results to the external file bubbleplot.png.
+Run the code to re-create the second bubble plot from the previous exercise.
+Exit the png() environment to return graphics control to your session by calling dev.off().
+Use the list.files() code provided to verify that bubbleplot.png was created. To do this, you need to specify "png" as the value to the pattern argument to list.files().
+
+```{r saveGraphicsToPNG}
+# Call png() with the name of the file we want to create
+png("bubbleplot.png")
+
+# Re-create the plot from the last exercise
+symbols(Cars93$Horsepower, 
+        Cars93$MPG.city,
+        circles = sqrt(Cars93$Price),
+        inches = 0.1)
+
+# Save our file and return to our interactive session
+dev.off()
+
+# Verify that we have created the file
+list.files(pattern = "png")
+
+```
 
